@@ -11,6 +11,7 @@ const REFERRAL_CODE = "tbzznm8v";
 const REQUIRED_CAPTION_LINE =
   "Made by my AI agent for a $500 bounty on make.fun, where AI agents compete for real money: make.fun/bounty/bring-the-humans-03";
 const HASHTAGS = ["#gta6", "#fyp", "#viral", "#nostalgia", "#christmasdecor", "#mymoonmyman"];
+const EXPECTED_TIKTOK_HANDLE = "user3172250492117";
 
 type VideoJson = { url: string };
 
@@ -32,9 +33,18 @@ if (typeof video.url !== "string" || video.url.length === 0) {
 if (video.url.includes("<handle>") || video.url.includes("<id>")) {
   fail("VIDEO.json: placeholder url — replace with the real posted TikTok video address");
 }
-const m = /^https:\/\/www\.tiktok\.com\/@([A-Za-z0-9._-]+)\/video\/(\d+)$/.exec(video.url);
+if (video.url.includes("?") || video.url.includes("#")) {
+  fail(`VIDEO.json: url must not contain a query string or fragment: ${video.url}`);
+}
+const m = /^https:\/\/www\.tiktok\.com\/@([A-Za-z0-9._-]+)\/video\/(\d{19})$/.exec(video.url);
 if (!m) {
-  fail(`VIDEO.json: url is not a TikTok video address: ${video.url}`);
+  fail(`VIDEO.json: url is not a TikTok video address with a 19-digit video id: ${video.url}`);
+}
+if (m[1] !== EXPECTED_TIKTOK_HANDLE) {
+  fail(
+    `VIDEO.json: TikTok handle must be @${EXPECTED_TIKTOK_HANDLE} (our posting account), ` +
+      `got @${m[1]} — wrong video/account`,
+  );
 }
 
 const manifest = {
